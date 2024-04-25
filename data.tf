@@ -7,3 +7,7 @@ data "aws_iam_session_context" "current" {
 }
 
 data "aws_region" "current" {}
+
+data "aws_s3_bucket" "artifact" {
+  bucket = var.artifacts_bucket
+}

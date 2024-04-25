@@ -21,6 +21,16 @@ variable "tags" {
   description = "Tags for AWS resources"
 }
 
+variable "artifacts_bucket" {
+  type        = string
+  description = "s3 bucket used for codepipeline artifacts"
+}
+
+variable "codestar_connection" {
+  type        = string
+  description = "codestar connection arn for github repository"
+}
+
 variable "codebuild_projects" {
   type = map(object({
     description                 = optional(string, "")
@@ -30,34 +40,30 @@ variable "codebuild_projects" {
     compute_image               = optional(string, "aws/codebuild/amazonlinux2-x86_64-standard:5.0")
     compute_type_container      = optional(string, "LINUX_CONTAINER")
     image_pull_credentials_type = optional(string, "CODEBUILD")
-    artifacts_bucket            = string
+    privileged_mode             = optional(bool, false)
     build_type                  = string
     buildspec_file_name         = optional(string, null)
     buildspec_file              = optional(string, null)
     terraform_version           = optional(string, null)
     create_role                 = optional(bool, false)
-    role_data = object({
+    role_data = optional(object({
       name                                = string
       pipeline_service                    = optional(string, null)
       assume_role_arns                    = optional(list(string), null)
-      codestar_connection                 = optional(string, null)
       github_secret_arn                   = optional(string, null)
       terraform_state_s3_bucket           = optional(string, null)
       dynamodb_lock_table                 = optional(string, null)
       additional_iam_policy_doc_json_list = optional(list(any), [])
-    })
+    }), null)
   }))
   description = "Values to create Codebuild project"
   default     = null // null  doesn't create codebuild project
 }
 
-variable "codepipeline_data" {
-  type = object({
-    name                      = string
+variable "codepipelines" {
+  type = map(object({
     github_repository         = string
     github_branch             = string
-    codestar_connection       = string
-    artifacts_bucket          = string
     artifact_store_s3_kms_arn = string
     pipeline_stages = list(object({
       stage_name       = string
@@ -71,19 +77,33 @@ variable "codepipeline_data" {
       environment_variables = optional(list(object({
         name  = string
         value = string
-        type  = string
+        type  = optional(string, "PLAINTEXT")
         })),
         []
       )
     }))
     auto_trigger = optional(bool, true)
     create_role  = optional(bool, false)
-    role_data = object({
+    role_data = optional(object({
       name                                = string
-      codestar_connection                 = optional(string, null)
       github_secret_arn                   = optional(string, null)
       additional_iam_policy_doc_json_list = optional(list(any), [])
-    })
-  })
+      }),
+    null)
+  }))
   description = "Codepipeline data to create pipeline and stages"
+  default     = {}
+}
+
+variable "role_data" {
+  type = map(object({
+    pipeline_service                    = string
+    assume_role_arns                    = optional(list(string), null)
+    github_secret_arn                   = optional(string, null)
+    terraform_state_s3_bucket           = optional(string, null)
+    dynamodb_lock_table                 = optional(string, null)
+    additional_iam_policy_doc_json_list = optional(list(any), [])
+  }))
+  description = "Roles to be created"
+  default     = {}
 }

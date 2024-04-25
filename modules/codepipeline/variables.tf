@@ -39,9 +39,9 @@ variable "pipeline_stages" {
     version          = string
     project_name     = optional(string, null)
     environment_variables = optional(list(object({
-      name  = string,
-      value = string,
-      type  = string
+      name  = string
+      value = string
+      type  = optional(string, "PLAINTEXT")
       })),
       []
     )
@@ -77,6 +77,7 @@ variable "role_data" {
     additional_iam_policy_doc_json_list = optional(list(any), [])
   })
   description = "Data required for creating IAM role"
+  default     = null
 }
 
 
@@ -84,4 +85,47 @@ variable "tags" {
   type        = map(string)
   description = "tags for Codepipelein"
   default     = {}
+}
+
+variable "event_type_ids" {
+  type        = list(string)
+  description = "A list of event types associated with this notification rule."
+  default = [
+    "codepipeline-pipeline-pipeline-execution-failed",
+    "codepipeline-pipeline-pipeline-execution-canceled",
+    "codepipeline-pipeline-pipeline-execution-started",
+    "codepipeline-pipeline-pipeline-execution-resumed",
+    "codepipeline-pipeline-pipeline-execution-succeeded",
+    "codepipeline-pipeline-pipeline-execution-superseded",
+    "codedeploy-application-deployment-failed",
+    "codedeploy-application-deployment-succeeded",
+    "codedeploy-application-deployment-started",
+    "codepipeline-pipeline-manual-approval-failed",
+    "codepipeline-pipeline-manual-approval-needed"
+  ]
+}
+
+variable "notification_data" {
+  type = map(object({
+    detail_type = optional(string, "FULL")
+    event_type_ids = optional(list(string), [
+      "codepipeline-pipeline-pipeline-execution-failed",
+      "codepipeline-pipeline-pipeline-execution-canceled",
+      "codepipeline-pipeline-pipeline-execution-started",
+      "codepipeline-pipeline-pipeline-execution-resumed",
+      "codepipeline-pipeline-pipeline-execution-succeeded",
+      "codepipeline-pipeline-pipeline-execution-superseded",
+      "codedeploy-application-deployment-failed",
+      "codedeploy-application-deployment-succeeded",
+      "codedeploy-application-deployment-started",
+      "codepipeline-pipeline-manual-approval-failed",
+      "codepipeline-pipeline-manual-approval-needed"
+    ])
+    target = object({
+      address = string                  // eg SNS arn
+      type    = optional(string, "SNS") // Type can be "SNS" , AWSChatbotSlack etc
+    })
+  }))
+  description = ""
+  default     = null
 }

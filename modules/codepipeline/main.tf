@@ -72,3 +72,20 @@ resource "aws_codepipeline" "codepipeline" {
   }
   tags = var.tags
 }
+
+resource "aws_codestarnotifications_notification_rule" "this" {
+  for_each = var.notification_data == null ? {} : var.notification_data
+
+  name           = each.key
+  detail_type    = each.value.detail_type
+  event_type_ids = each.value.event_type_ids
+
+  resource = aws_codepipeline.codepipeline.arn
+
+  target {
+    address = each.value.address
+    type    = each.value.type
+  }
+
+  tags = var.tags
+}
