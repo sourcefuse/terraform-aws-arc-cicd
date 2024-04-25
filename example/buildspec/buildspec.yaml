@@ -1,0 +1,24 @@
+---
+version: 0.2
+
+phases:
+  install:
+    # If you use the Ubuntu standard image 2.0 or later, you must specify runtime-versions.
+    #  If you specify runtime-versions and use an image other than Ubuntu standard image 2.0, the build fails.
+    runtime-versions:
+      nodejs: 12
+  pre_build:
+    commands:
+      - echo Installing source NPM dependencies...
+      - npm install
+  build:
+    commands:
+      - export BUILD_ENV=$${environment}
+      - echo Build started on `date`
+      - npm run build
+  post_build:
+    commands: |
+      export $(printf "AWS_ACCESS_KEY_ID=%s AWS_SECRET_ACCESS_KEY=%s AWS_SESSION_TOKEN=%s" $(aws sts assume-role --role-arn $${ROLE_TO_ASSUME} --role-session-name sesion1 --query "Credentials.[AccessKeyId,SecretAccessKey,SessionToken]" --output text))
+      aws sts get-caller-identity
+      aws s3 sync ./build s3://$${CLOUDFRONT_ORIGIN_BUCKET}/
+      aws cloudfront create-invalidation --distribution-id $${distribution_id} --paths "/*"
