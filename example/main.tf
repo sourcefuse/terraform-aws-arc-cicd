@@ -49,7 +49,7 @@ module "pipeline" {
         name                                = "test-codebuild-role"
         pipeline_service                    = "codebuild"
         assume_role_arns                    = []
-        codestar_connection                 = "SaaSRX-Github-Connection"
+        codestar_connection                 = "Github-Connection"
         github_secret_arn                   = null
         terraform_state_s3_bucket           = null
         dynamodb_lock_table                 = null
@@ -59,10 +59,10 @@ module "pipeline" {
   }
 
   codepipeline_data = {
-    name                      = "${var.environment}-${var.namespace}-saasrx-ui"
-    github_repository         = "himanshutmllc/saasrx-ui"
+    name                      = "${var.environment}-${var.namespace}-app-ui"
+    github_repository         = "himanshutmllc/app-ui"
     github_branch             = "main"
-    codestar_connection       = "SaaSRX-Github-Connection"
+    codestar_connection       = "Github-Connection"
     artifacts_bucket          = "trinet-codebuild-project-artifact"
     artifact_store_s3_kms_arn = null
     pipeline_stages = [
