@@ -64,6 +64,7 @@ module "codepipeline" {
   codestar_connection       = var.codestar_connection
   artifacts_bucket          = var.artifacts_bucket
   artifact_store_s3_kms_arn = each.value.artifact_store_s3_kms_arn
+  source_repositories       = each.value.source_repositories
   pipeline_stages           = each.value.pipeline_stages
   auto_trigger              = each.value.auto_trigger
   create_role               = each.value.create_role

@@ -29,26 +29,29 @@ resource "aws_codepipeline" "codepipeline" {
       }
     }
   }
+
+  // Idea derived from https://stackoverflow.com/questions/69235896/terraform-aws-codepipeline-multiple-codecommit-sources
   stage {
     name = "Source"
 
-    action {
-      name             = "Source"
-      category         = "Source"
-      owner            = "AWS"
-      provider         = "CodeStarSourceConnection"
-      version          = "1"
-      output_artifacts = ["source_output"]
-
-      configuration = {
-        ConnectionArn    = data.aws_codestarconnections_connection.this.arn
-        FullRepositoryId = var.github_repository
-        BranchName       = var.github_branch
-        DetectChanges    = var.auto_trigger
+    dynamic "action" {
+      for_each = var.source_repositories
+      content {
+        name             = action.value.name
+        category         = "Source"
+        owner            = "AWS"
+        provider         = "CodeStarSourceConnection"
+        version          = "1"
+        output_artifacts = action.value.output_artifacts
+        configuration = {
+          ConnectionArn    = data.aws_codestarconnections_connection.this.arn
+          FullRepositoryId = action.value.github_repository
+          BranchName       = action.value.github_branch
+          DetectChanges    = action.value.auto_trigger
+        }
       }
     }
   }
-
 
   dynamic "stage" {
     for_each = var.pipeline_stages
@@ -70,6 +73,56 @@ resource "aws_codepipeline" "codepipeline" {
       }
     }
   }
+
+  // refer :  https://github.com/hashicorp/terraform-provider-aws/issues/35475#issuecomment-1961565715
+  trigger {
+
+    provider_type = "CodeStarSourceConnection"
+
+    dynamic "git_configuration" {
+      for_each = var.trigger
+      content {
+
+        source_action_name = git_configuration.source_action_name
+
+        dynamic "push" {
+          for_each = var.git_configuration.push
+          content {
+
+            branches {
+              includes = push.value.branches.includes
+              excludes = push.value.branches.incluexcludesdes
+            }
+            file_paths {
+              includes = push.value.file_paths.includes
+              excludes = push.value.file_paths.incluexcludesdes
+            }
+
+          }
+        }
+
+        pull_request {
+          events = git_configuration.pull_request.events
+          dynamic "push" {
+            for_each = var.pull_request.push
+            content {
+
+              branches {
+                includes = push.value.branches.includes
+                excludes = push.value.branches.incluexcludesdes
+              }
+              file_paths {
+                includes = push.value.file_paths.includes
+                excludes = push.value.file_paths.incluexcludesdes
+              }
+
+            }
+          }
+        }
+      }
+    }
+  }
+
   tags = var.tags
 }
 

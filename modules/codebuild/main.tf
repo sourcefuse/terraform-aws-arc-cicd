@@ -39,7 +39,7 @@ resource "aws_codebuild_project" "this" {
   source {
     type = "CODEPIPELINE"
     buildspec = var.build_type == "Terraform" ? templatefile("${path.module}/buildspec/${var.buildspec_file_name}.yaml", {
-      terraform_version = var.terraform_version
+      TERRAFORM_VERSION = var.terraform_version
     }) : var.buildspec_file
   }
 

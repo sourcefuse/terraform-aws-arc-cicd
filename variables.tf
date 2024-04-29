@@ -44,7 +44,7 @@ variable "codebuild_projects" {
     build_type                  = string
     buildspec_file_name         = optional(string, null)
     buildspec_file              = optional(string, null)
-    terraform_version           = optional(string, null)
+    terraform_version           = optional(string, "terraform-1.5.0-1.x86_64")
     create_role                 = optional(bool, false)
     role_data = optional(object({
       name                                = string
@@ -65,6 +65,15 @@ variable "codepipelines" {
     github_repository         = string
     github_branch             = string
     artifact_store_s3_kms_arn = string
+
+    source_repositories = list(object({
+      name              = string
+      output_artifacts  = optional(list(string), ["source_output"])
+      github_repository = string
+      github_branch     = string
+      auto_trigger      = optional(bool, true)
+    }))
+
     pipeline_stages = list(object({
       stage_name       = string
       name             = string

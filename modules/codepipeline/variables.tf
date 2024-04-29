@@ -28,6 +28,17 @@ variable "artifact_store_s3_kms_arn" {
   description = "KMS arn used to encrypy S3 objects"
 }
 
+variable "source_repositories" {
+  type = list(object({
+    name              = string
+    output_artifacts  = optional(list(string), ["source_output"])
+    github_repository = string
+    github_branch     = string
+    auto_trigger      = optional(bool, true)
+  }))
+  description = "List of Repositories to be cloned"
+}
+
 variable "pipeline_stages" {
   type = list(object({
     stage_name       = string
@@ -103,6 +114,41 @@ variable "event_type_ids" {
     "codepipeline-pipeline-manual-approval-failed",
     "codepipeline-pipeline-manual-approval-needed"
   ]
+}
+
+// Check the Formate here --> https://github.com/hashicorp/terraform-provider-aws/issues/35475#issuecomment-1961565715
+variable "trigger" {
+  type = list(object({
+    source_action_name = string
+    push = list({
+      branches = object({
+        includes = list(string)
+        excludes = list(string)
+      })
+      file_paths = object({
+        includes = list(string)
+        excludes = list(string)
+      })
+      }
+    )
+
+    pull_request = object({
+      events = list(string)
+      filter = list({
+        branches = object({
+          includes = list(string)
+          excludes = list(string)
+        })
+        file_paths = object({
+          includes = list(string)
+          excludes = list(string)
+        })
+        }
+    ) })
+
+  }))
+  default     = []
+  description = "A trigger block. Valid only when pipeline_type is V2"
 }
 
 variable "notification_data" {
