@@ -42,13 +42,8 @@ Inside the `variables.tf` or in `*.tfvars` file, you should define values for th
 In your main Terraform configuration file (e.g., main.tf), you can use the module. Specify the source of the module, and version, For Example
 
 ```hcl
-module "example" {
+module "pipelines" {
   source = "sourcefuse/arc-cicd/aws"
-  version     = "0.0.1"
-
-  region      = var.region
-  environment = var.environment
-  namespace   = var.namespace
 
   artifacts_bucket    = local.artifacts_bucket
   codestar_connection = local.codestar_connection
