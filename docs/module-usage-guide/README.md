@@ -1,21 +1,20 @@
-# Terraform AWS ARC Security Module Usage Guide
+# Terraform AWS ARC CICD Module Usage Guide
 
 ## Introduction
 
 ### Purpose of the Document
 
-This document provides guidelines and instructions for users looking to implement Terraform module for managing Security Hub components.
+This document provides guidelines and instructions for users looking to create CI/CD pipelines using CodePipeline and CodeBuild projects. It helps achieve multi-account pipelines.
 
 ### Module Overview
 
-The [terraform-aws-arc-security](https://github.com/sourcefuse/terraform-aws-arc-security) module provides a secure and modular foundation for managing Security Hub components.
-
+The [terraform-aws-arc-cicd](https://github.com/sourcefuse/terraform-aws-arc-cicd) module can be used to create CICI pipelines using Codepipeline.
 ### Prerequisites
 
 Before using this module, ensure you have the following:
 - AWS credentials configured.
 - Terraform installed.
-- A working knowledge of AWS Security
+- A working knowledge of AWS cicd
 
 ## Getting Started
 
@@ -24,20 +23,20 @@ Before using this module, ensure you have the following:
 To use the module in your Terraform configuration, include the following source block:
 
 ```hcl
-module "cloud_security" {
-  source  = "sourcefuse/arc-security/aws"
-  version = "1.0.2"
+module "cloud_cicd" {
+  source  = "sourcefuse/arc-cicd/aws"
+  version = "0.0.1"
   # insert the required variables here
 }
 ```
-Refer to the [Terraform Registry](https://registry.terraform.io/modules/sourcefuse/arc-security/aws/latest) for the latest version.
+Refer to the [Terraform Registry](https://registry.terraform.io/modules/sourcefuse/arc-cicd/aws/latest) for the latest version.
 
 ### Integration with Existing Terraform Configurations
 
 Integrate the module with your existing Terraform mono repo configuration, follow the steps below:
 
-1. Create a new folder in `terraform/` named `security`.
-2. Create the required files, see the [examples](https://github.com/sourcefuse/terraform-aws-arc-security/tree/main/examples/simple) to base off of.
+1. Create a new folder in `terraform/` named `cicd`.
+2. Create the required files, see the [examples](https://github.com/sourcefuse/terraform-aws-arc-cicd/tree/main/examples/terraform) to base off of.
 3. Configure with your backend
   - Create the environment backend configuration file: `config.<environment>.hcl`
     - **region**: Where the backend resides
@@ -46,79 +45,74 @@ Integrate the module with your existing Terraform mono repo configuration, follo
     - **dynamodb_table**: Lock table so there are not duplicate tfplans in the mix
     - **encrypt**: Encrypt all traffic to and from the backend
 
+### Multi account Pipeline
+  - Refer [example](https://github.com/sourcefuse/terraform-aws-arc-cicd/tree/main/examples/multi-account-ui-deployment) for creating multi account pipelines.
+
 ### Required AWS Permissions
 
-Ensure that the AWS credentials used to execute Terraform have the necessary permissions to set up a cloud security infrastructure on AWS.
+Ensure that the AWS credentials used to execute Terraform have the necessary permissions to set up a cloud cicd infrastructure on AWS.
 
 ## Module Configuration
 
 ### Input Variables
 
-For a list of input variables, see the README [Inputs](https://github.com/sourcefuse/terraform-aws-arc-security?tab=readme-ov-file#inputs) section.
+For a list of input variables, see the README [Inputs](https://github.com/sourcefuse/terraform-aws-arc-cicd?tab=readme-ov-file#inputs) section.
 
 ### Output Values
 
-For a list of outputs, see the README [Outputs](https://github.com/sourcefuse/terraform-aws-arc-security?tab=readme-ov-file#outputs) section.
+For a list of outputs, see the README [Outputs](https://github.com/sourcefuse/terraform-aws-arc-cicd?tab=readme-ov-file#outputs) section.
 
 ## Module Usage
 
 ### Basic Usage
 
-For basic usage, see the [example](https://github.com/sourcefuse/terraform-aws-arc-security/tree/main/example) folder.
+For basic usage, see the [example](https://github.com/sourcefuse/terraform-aws-arc-cicd/tree/main/examples/terraform) folder.
 
 This example will create:
 
-A "cloud_security" module, which sets up various AWS security services.
-AWS Inspector: An automated security assessment service that helps improve the security and compliance of applications deployed on AWS.
+IAM Role : IAM role for Codebuild project and Codepipelines
 
-AWS Config:This includes how the resources are related to one another and how they were configured in the past so you can see how the configurations and relationships change over time.
+Codebuild project : Reusable codebuild project
 
-AWS GuardDuty: A threat detection service that continuously monitors for malicious activity and unauthorized behavior to protect your AWS accounts and workloads.
+Codepipeline : Codepipelines using codebuild projects
 
-AWS Security Hub: Gives you a comprehensive view of your high-priority security alerts and compliance status across AWS accounts.
-It also sets up IAM roles for AWS Config and AWS Inspector if specified.
-
-It configures SNS subscribers for AWS Config, GuardDuty, and Security Hub. These subscribers will receive notifications about security events.It enables certain AWS Config managed rules and Security Hub standards
-It configures AWS Inspector with specified rules, schedule, and event subscription.
-
-Finally, it assigns the tags created earlier to the "cloud_security" module.
 
 ### Tips and Recommendations
 
-The module focuses on setting up setting up a cloud security infrastructure on AWS. Adjust the configuration parameters as needed for your specific use case.
+The module focuses on setting up setting up a CICD pipelines on AWS. Adjust the configuration parameters as needed for your specific use case.
 
 ## Troubleshooting
 
 ### Reporting Issues
 
-If you encounter a bug or issue, please report it on the [GitHub repository](https://github.com/sourcefuse/terraform-aws-arc-security/issues).
+If you encounter a bug or issue, please report it on the [GitHub repository](https://github.com/sourcefuse/terraform-aws-arc-cicd/issues).
 
-## Security Considerations
+## cicd Considerations
 
 ### AWS VPC
 
-Understand the security considerations related to Cloud Security when using this module.
+Understand the cicd considerations related to Cloud cicd when using this module.
 
-### Best Practices for AWS Cloud Security
+### Best Practices for AWS Cloud cicd
 
-Follow best practices to ensure best Security configurations.
-[Cloud Security on AWS](https://docs.aws.amazon.com/whitepapers/latest/aws-overview/security-and-compliance.html)
+Follow best practices to ensure best cicd configurations.
+[Cloud cicd on AWS](https://docs.aws.amazon.com/whitepapers/latest/aws-overview/cicd-and-compliance.html)
 
 ## Contributing and Community Support
 
 ### Contributing Guidelines
 
-Contribute to the module by following the guidelines outlined in the [CONTRIBUTING.md](https://github.com/sourcefuse/terraform-aws-arc-security/blob/main/CONTRIBUTING.md) file.
+Contribute to the module by following the guidelines outlined in the [CONTRIBUTING.md](https://github.com/sourcefuse/terraform-aws-arc-cicd/blob/main/CONTRIBUTING.md) file.
 
 ### Reporting Bugs and Issues
 
-If you find a bug or issue, report it on the [GitHub repository](https://github.com/sourcefuse/terraform-aws-arc-security/issues).
+If you find a bug or issue, report it on the [GitHub repository](https://github.com/sourcefuse/terraform-aws-arc-cicd/issues).
 
 ## License
 
 ### License Information
 
-This module is licensed under the Apache 2.0 license. Refer to the [LICENSE](https://github.com/sourcefuse/terraform-aws-arc-security/blob/main/LICENSE) file for more details.
+This module is licensed under the Apache 2.0 license. Refer to the [LICENSE](https://github.com/sourcefuse/terraform-aws-arc-cicd/blob/main/LICENSE) file for more details.
 
 ### Open Source Contribution
 

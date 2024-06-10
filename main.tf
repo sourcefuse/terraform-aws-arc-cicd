@@ -20,7 +20,7 @@ module "role" {
 ################################################################################
 module "codebuild" {
   source   = "./modules/codebuild"
-  for_each = var.codebuild_projects
+  for_each = var.codebuild_projects == null ? {} : var.codebuild_projects
 
   project_name                = each.key
   description                 = each.value.description
@@ -59,24 +59,41 @@ module "codepipeline" {
   for_each = var.codepipelines
 
   name                      = each.key
-  github_repository         = each.value.github_repository
-  github_branch             = each.value.github_branch
   codestar_connection       = var.codestar_connection
   artifacts_bucket          = var.artifacts_bucket
   artifact_store_s3_kms_arn = each.value.artifact_store_s3_kms_arn
   source_repositories       = each.value.source_repositories
   pipeline_stages           = each.value.pipeline_stages
-  auto_trigger              = each.value.auto_trigger
   create_role               = each.value.create_role
   role_data = merge(
     each.value.role_data,
     {
       codestar_connection = var.codestar_connection
     }
-
   )
+
+  trigger           = each.value.trigger
+  notification_data = each.value.notification_data
 
   tags = var.tags
 
-  depends_on = [module.codebuild, module.role]
+  depends_on = [module.codebuild, module.role, module.chatbot]
+}
+
+################################################################################
+## AWS Chatbot
+################################################################################
+
+module "chatbot" {
+  source = "./modules/chatbot"
+  count  = var.chatbot_data == null ? 0 : 1
+
+  name                     = var.chatbot_data.name
+  slack_channel_id         = var.chatbot_data.slack_channel_id
+  slack_workspace_id       = var.chatbot_data.slack_workspace_id
+  guardrail_policies       = var.chatbot_data.guardrail_policies
+  enable_slack_integration = var.chatbot_data.enable_slack_integration
+  role_polices             = var.chatbot_data.role_polices
+  managed_policy_arns      = var.chatbot_data.managed_policy_arns
+  tags                     = var.tags
 }

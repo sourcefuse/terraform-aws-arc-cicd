@@ -1,21 +1,3 @@
-## shared
-################################################################################
-variable "namespace" {
-  type        = string
-  description = "Namespace for the resources."
-}
-
-variable "environment" {
-  type        = string
-  description = "ID element. Usually used for region e.g. 'uw2', 'us-west-2', OR role 'prod', 'staging', 'dev', 'UAT'"
-}
-
-variable "region" {
-  type        = string
-  description = "AWS region"
-  default     = "us-east-1"
-}
-
 variable "tags" {
   type        = map(string)
   description = "Tags for AWS resources"
@@ -62,8 +44,6 @@ variable "codebuild_projects" {
 
 variable "codepipelines" {
   type = map(object({
-    github_repository         = string
-    github_branch             = string
     artifact_store_s3_kms_arn = string
 
     source_repositories = list(object({
@@ -91,15 +71,65 @@ variable "codepipelines" {
         []
       )
     }))
-    auto_trigger = optional(bool, true)
-    create_role  = optional(bool, false)
+    create_role = optional(bool, false)
     role_data = optional(object({
       name                                = string
       github_secret_arn                   = optional(string, null)
       additional_iam_policy_doc_json_list = optional(list(any), [])
       }),
     null)
+
+    trigger = optional(list(object({
+      source_action_name = string
+
+      push = list(object({
+        branches = object({
+          includes = list(string)
+          excludes = list(string)
+        })
+        file_paths = object({
+          includes = list(string)
+          excludes = list(string)
+        })
+        })
+      )
+
+      pull_request = list(object({
+        events = list(string)
+        filter = list(object({
+          branches = object({
+            includes = list(string)
+            excludes = list(string)
+          })
+          file_paths = object({
+            includes = list(string)
+            excludes = list(string)
+          })
+          })
+      ) }))
+
+    })), [])
+
+    notification_data = optional(map(object({
+      detail_type = optional(string, "FULL")
+      event_type_ids = optional(list(string), [
+        "codepipeline-pipeline-pipeline-execution-failed",
+        "codepipeline-pipeline-pipeline-execution-canceled",
+        "codepipeline-pipeline-pipeline-execution-started",
+        "codepipeline-pipeline-pipeline-execution-resumed",
+        "codepipeline-pipeline-pipeline-execution-succeeded",
+        "codepipeline-pipeline-pipeline-execution-superseded",
+        "codepipeline-pipeline-manual-approval-failed",
+        "codepipeline-pipeline-manual-approval-needed"
+      ])
+      targets = list(object({
+        address = string                  // eg SNS arn
+        type    = optional(string, "SNS") // Type can be "SNS" , AWSChatbotSlack etc
+      }))
+    })), null)
+
   }))
+
   description = "Codepipeline data to create pipeline and stages"
   default     = {}
 }
@@ -115,4 +145,23 @@ variable "role_data" {
   }))
   description = "Roles to be created"
   default     = {}
+}
+
+
+variable "chatbot_data" {
+  type = object({
+    name                     = string
+    slack_channel_id         = string
+    slack_workspace_id       = string
+    guardrail_policies       = optional(list(string), ["arn:aws:iam::aws:policy/AWSAccountManagementReadOnlyAccess"])
+    enable_slack_integration = bool
+    role_polices = optional(list(object({
+      policy_document = any
+      policy_name     = string
+
+    })), [])
+    managed_policy_arns = optional(list(string), ["arn:aws:iam::aws:policy/AWSResourceExplorerReadOnlyAccess"])
+  })
+  description = "(optional) Chatbot details to create integration"
+  default     = null
 }

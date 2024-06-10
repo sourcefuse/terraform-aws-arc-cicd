@@ -16,6 +16,8 @@ resource "aws_codepipeline" "codepipeline" {
   name     = var.name
   role_arn = local.role_arn
 
+  pipeline_type = "V2"
+
   artifact_store {
     location = var.artifacts_bucket
     type     = "S3"
@@ -75,36 +77,23 @@ resource "aws_codepipeline" "codepipeline" {
   }
 
   // refer :  https://github.com/hashicorp/terraform-provider-aws/issues/35475#issuecomment-1961565715
-  trigger {
+  dynamic "trigger" {
 
-    provider_type = "CodeStarSourceConnection"
+    for_each = length(var.trigger) > 0 ? [true] : []
 
-    dynamic "git_configuration" {
-      for_each = var.trigger
-      content {
+    content {
 
-        source_action_name = git_configuration.source_action_name
+      provider_type = "CodeStarSourceConnection"
 
-        dynamic "push" {
-          for_each = var.git_configuration.push
-          content {
+      dynamic "git_configuration" {
+        for_each = var.trigger
 
-            branches {
-              includes = push.value.branches.includes
-              excludes = push.value.branches.incluexcludesdes
-            }
-            file_paths {
-              includes = push.value.file_paths.includes
-              excludes = push.value.file_paths.incluexcludesdes
-            }
+        content {
 
-          }
-        }
+          source_action_name = git_configuration.value.source_action_name
 
-        pull_request {
-          events = git_configuration.pull_request.events
           dynamic "push" {
-            for_each = var.pull_request.push
+            for_each = git_configuration.value.push
             content {
 
               branches {
@@ -117,6 +106,23 @@ resource "aws_codepipeline" "codepipeline" {
               }
 
             }
+          }
+
+          dynamic "pull_request" {
+            for_each = git_configuration.value.pull_request
+            content {
+              events = pull_request.events
+              branches {
+                includes = pull_request.value.branches.includes
+                excludes = pull_request.value.branches.incluexcludesdes
+              }
+              file_paths {
+                includes = pull_request.value.file_paths.includes
+                excludes = pull_request.value.file_paths.incluexcludesdes
+              }
+
+            }
+
           }
         }
       }
@@ -135,9 +141,14 @@ resource "aws_codestarnotifications_notification_rule" "this" {
 
   resource = aws_codepipeline.codepipeline.arn
 
-  target {
-    address = each.value.address
-    type    = each.value.type
+  dynamic "target" {
+    for_each = each.value.targets
+
+    content {
+      address = target.value.address
+      type    = target.value.type
+    }
+
   }
 
   tags = var.tags

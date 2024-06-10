@@ -3,16 +3,6 @@ variable "name" {
   description = "Name of the pipeline"
 }
 
-variable "github_repository" {
-  type        = string
-  description = "Github repository used for source"
-}
-
-variable "github_branch" {
-  type        = string
-  description = "Github repo Branch used for source"
-}
-
 variable "codestar_connection" {
   type        = string
   description = "codestar connection arn for github repository"
@@ -69,12 +59,6 @@ variable "pipeline_stages" {
   EOT
 }
 
-variable "auto_trigger" {
-  type        = bool
-  default     = true
-  description = "Whether to start the pipeline after source change"
-}
-
 variable "create_role" {
   type        = bool
   description = "Whether to create IAM role"
@@ -98,29 +82,12 @@ variable "tags" {
   default     = {}
 }
 
-variable "event_type_ids" {
-  type        = list(string)
-  description = "A list of event types associated with this notification rule."
-  default = [
-    "codepipeline-pipeline-pipeline-execution-failed",
-    "codepipeline-pipeline-pipeline-execution-canceled",
-    "codepipeline-pipeline-pipeline-execution-started",
-    "codepipeline-pipeline-pipeline-execution-resumed",
-    "codepipeline-pipeline-pipeline-execution-succeeded",
-    "codepipeline-pipeline-pipeline-execution-superseded",
-    "codedeploy-application-deployment-failed",
-    "codedeploy-application-deployment-succeeded",
-    "codedeploy-application-deployment-started",
-    "codepipeline-pipeline-manual-approval-failed",
-    "codepipeline-pipeline-manual-approval-needed"
-  ]
-}
-
 // Check the Formate here --> https://github.com/hashicorp/terraform-provider-aws/issues/35475#issuecomment-1961565715
 variable "trigger" {
   type = list(object({
     source_action_name = string
-    push = list({
+
+    push = list(object({
       branches = object({
         includes = list(string)
         excludes = list(string)
@@ -129,12 +96,12 @@ variable "trigger" {
         includes = list(string)
         excludes = list(string)
       })
-      }
+      })
     )
 
-    pull_request = object({
+    pull_request = list(object({
       events = list(string)
-      filter = list({
+      filter = list(object({
         branches = object({
           includes = list(string)
           excludes = list(string)
@@ -143,8 +110,8 @@ variable "trigger" {
           includes = list(string)
           excludes = list(string)
         })
-        }
-    ) })
+        })
+    ) }))
 
   }))
   default     = []
@@ -161,16 +128,13 @@ variable "notification_data" {
       "codepipeline-pipeline-pipeline-execution-resumed",
       "codepipeline-pipeline-pipeline-execution-succeeded",
       "codepipeline-pipeline-pipeline-execution-superseded",
-      "codedeploy-application-deployment-failed",
-      "codedeploy-application-deployment-succeeded",
-      "codedeploy-application-deployment-started",
       "codepipeline-pipeline-manual-approval-failed",
       "codepipeline-pipeline-manual-approval-needed"
     ])
-    target = object({
+    targets = list(object({
       address = string                  // eg SNS arn
       type    = optional(string, "SNS") // Type can be "SNS" , AWSChatbotSlack etc
-    })
+    }))
   }))
   description = ""
   default     = null

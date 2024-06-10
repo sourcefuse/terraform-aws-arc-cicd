@@ -1,3 +1,4 @@
+---
 version: 0.2
 # env:
 #   secrets-manager:
@@ -26,6 +27,7 @@ phases:
       fi
       terraform init -backend-config=$${BACKEND_CONFIG_FILE}
       [ "$WORKSPACE" != "" ] && terraform workspace select -or-create $${WORKSPACE}
+      echo "TF_VAR_FILE : $TF_VAR_FILE"
       if [ "$${APPLY_WITHOUT_PLAN_FILE}" == "true" ]
       then
         terraform apply --var-file=$${TF_VAR_FILE} -input=false -auto-approve
