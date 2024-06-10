@@ -3,7 +3,7 @@ module "role" {
   count  = var.create_role ? 1 : 0
 
   name                                = var.role_data.name
-  pipeline_service                    = var.role_data.pipeline_service
+  pipeline_service                    = try(var.role_data.pipeline_service, [])
   assume_role_arns                    = var.role_data.assume_role_arns
   artifact_bucket_arn                 = data.aws_s3_bucket.artifact.arn
   codestar_connection                 = var.role_data.codestar_connection
@@ -33,12 +33,13 @@ resource "aws_codebuild_project" "this" {
     image                       = var.buildspec_file_name == "buildspec_ui" ? "aws/codebuild/standard:4.0" : var.compute_image
     type                        = var.compute_type_container
     image_pull_credentials_type = var.image_pull_credentials_type
+    privileged_mode             = var.privileged_mode
   }
 
   source {
     type = "CODEPIPELINE"
     buildspec = var.build_type == "Terraform" ? templatefile("${path.module}/buildspec/${var.buildspec_file_name}.yaml", {
-      terraform_version = var.terraform_version
+      TERRAFORM_VERSION = var.terraform_version
     }) : var.buildspec_file
   }
 

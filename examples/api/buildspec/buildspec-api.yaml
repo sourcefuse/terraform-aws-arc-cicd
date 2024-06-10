@@ -1,0 +1,23 @@
+---
+version: 0.2
+
+env:
+  variables:
+    ENVIRONMENT: "$${ENVIRONMENT}"
+    APPLICATION: "$${APPLICATION}"
+    APP_PATH: "$${APP_PATH}"
+    TASK_NAME: "$${TASK_NAME}"
+    SERVICE_NAME: "$${SERVICE_NAME}"
+
+phases:
+  build:
+    commands:
+      - docker build -t ${APPLICATION} -f  ${APP_PATH}/Dockerfile .
+  post_build:
+    commands: |
+          docker images
+          TAG=`date +'%Y-%m-%d_%H-%M-%S-%s'`
+          IMAGE="xxxxxxx.dkr.ecr.us-east-1.amazonaws.com/${APPLICATION}:$TAG"
+          aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin xxxxx.dkr.ecr.us-east-1.amazonaws.com
+          docker tag ${APPLICATION}:latest ${IMAGE}
+          docker push ${IMAGE}

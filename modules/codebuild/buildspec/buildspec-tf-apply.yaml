@@ -1,0 +1,36 @@
+---
+version: 0.2
+# env:
+#   secrets-manager:
+#     GITHUB_TOKEN: $${GITHUB_SECRET}
+env:
+  variables:
+    TERRAFORM_VERSION: "$${TERRAFORM_VERSION}"
+phases:
+  pre_build:
+    commands:
+      - yum install -y yum-utils
+      - yum-config-manager --add-repo https://rpm.releases.hashicorp.com/AmazonLinux/hashicorp.repo
+      - yum -y install ${TERRAFORM_VERSION}
+  build:
+    commands: |
+      echo "WORKING_DIR : $${WORKING_DIR}"
+      cd $${WORKING_DIR}
+      ls -lrt
+      if [ "$${REPLACE}" != "" ]
+      then
+        grep -ril --include="*.tf" "git::https://github.com/$${ORG}"|grep -v .terraform| while read file
+        do
+          echo "file : $file"
+          sed -i "s;github.com/$${ORG};$GITHUB_TOKEN@github.com/$${ORG};g" $file
+        done
+      fi
+      terraform init -backend-config=$${BACKEND_CONFIG_FILE}
+      [ "$WORKSPACE" != "" ] && terraform workspace select -or-create $${WORKSPACE}
+      echo "TF_VAR_FILE : $TF_VAR_FILE"
+      if [ "$${APPLY_WITHOUT_PLAN_FILE}" == "true" ]
+      then
+        terraform apply --var-file=$${TF_VAR_FILE} -input=false -auto-approve
+      else
+        terraform apply tfplan
+      fi

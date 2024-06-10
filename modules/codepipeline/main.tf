@@ -16,6 +16,8 @@ resource "aws_codepipeline" "codepipeline" {
   name     = var.name
   role_arn = local.role_arn
 
+  pipeline_type = "V2"
+
   artifact_store {
     location = var.artifacts_bucket
     type     = "S3"
@@ -29,26 +31,29 @@ resource "aws_codepipeline" "codepipeline" {
       }
     }
   }
+
+  // Idea derived from https://stackoverflow.com/questions/69235896/terraform-aws-codepipeline-multiple-codecommit-sources
   stage {
     name = "Source"
 
-    action {
-      name             = "Source"
-      category         = "Source"
-      owner            = "AWS"
-      provider         = "CodeStarSourceConnection"
-      version          = "1"
-      output_artifacts = ["source_output"]
-
-      configuration = {
-        ConnectionArn    = data.aws_codestarconnections_connection.this.arn
-        FullRepositoryId = var.github_repository
-        BranchName       = var.github_branch
-        DetectChanges    = var.auto_trigger
+    dynamic "action" {
+      for_each = var.source_repositories
+      content {
+        name             = action.value.name
+        category         = "Source"
+        owner            = "AWS"
+        provider         = "CodeStarSourceConnection"
+        version          = "1"
+        output_artifacts = action.value.output_artifacts
+        configuration = {
+          ConnectionArn    = data.aws_codestarconnections_connection.this.arn
+          FullRepositoryId = action.value.github_repository
+          BranchName       = action.value.github_branch
+          DetectChanges    = action.value.auto_trigger
+        }
       }
     }
   }
-
 
   dynamic "stage" {
     for_each = var.pipeline_stages
@@ -70,5 +75,81 @@ resource "aws_codepipeline" "codepipeline" {
       }
     }
   }
+
+  // refer :  https://github.com/hashicorp/terraform-provider-aws/issues/35475#issuecomment-1961565715
+  dynamic "trigger" {
+
+    for_each = length(var.trigger) > 0 ? [true] : []
+
+    content {
+
+      provider_type = "CodeStarSourceConnection"
+
+      dynamic "git_configuration" {
+        for_each = var.trigger
+
+        content {
+
+          source_action_name = git_configuration.value.source_action_name
+
+          dynamic "push" {
+            for_each = git_configuration.value.push
+            content {
+
+              branches {
+                includes = push.value.branches.includes
+                excludes = push.value.branches.incluexcludesdes
+              }
+              file_paths {
+                includes = push.value.file_paths.includes
+                excludes = push.value.file_paths.incluexcludesdes
+              }
+
+            }
+          }
+
+          dynamic "pull_request" {
+            for_each = git_configuration.value.pull_request
+            content {
+              events = pull_request.events
+              branches {
+                includes = pull_request.value.branches.includes
+                excludes = pull_request.value.branches.incluexcludesdes
+              }
+              file_paths {
+                includes = pull_request.value.file_paths.includes
+                excludes = pull_request.value.file_paths.incluexcludesdes
+              }
+
+            }
+
+          }
+        }
+      }
+    }
+  }
+
+  tags = var.tags
+}
+
+resource "aws_codestarnotifications_notification_rule" "this" {
+  for_each = var.notification_data == null ? {} : var.notification_data
+
+  name           = each.key
+  detail_type    = each.value.detail_type
+  event_type_ids = each.value.event_type_ids
+
+  resource = aws_codepipeline.codepipeline.arn
+
+  dynamic "target" {
+    for_each = each.value.targets
+
+    content {
+      address = target.value.address
+      type    = target.value.type
+    }
+
+  }
+
   tags = var.tags
 }

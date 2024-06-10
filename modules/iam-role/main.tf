@@ -62,7 +62,7 @@ data "aws_iam_policy_document" "codebuild" {
 
       effect    = "Allow"
       actions   = ["sts:AssumeRole"]
-      resources = statement.value.assume_role_arns
+      resources = var.assume_role_arns
     }
   }
 

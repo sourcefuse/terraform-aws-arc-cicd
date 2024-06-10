@@ -1,28 +1,33 @@
----
 version: 0.2
+# env:
+#   secrets-manager:
+#     GITHUB_TOKEN: $${GITHUB_SECRET}
 env:
-  secrets-manager:
-    GITHUB_TOKEN: $${GITHUB_SECRET}
+  variables:
+    TERRAFORM_VERSION: "$${TERRAFORM_VERSION}"
 phases:
   pre_build:
     commands:
       - yum install -y yum-utils
       - yum-config-manager --add-repo https://rpm.releases.hashicorp.com/AmazonLinux/hashicorp.repo
-      - yum -y install ${terraform_version}
+      - yum -y install ${TERRAFORM_VERSION}
   build:
     commands: |
       echo "WORKING_DIR : $${WORKING_DIR}"
       cd $${WORKING_DIR}
       ls -lrt
-      grep -ril --include="*.tf" "git::https://github.com/BizGive"|grep -v .terraform| while read file
-      do
-        echo "file : $file"
-        sed -i "s;github.com/BizGive;$GITHUB_TOKEN@github.com/BizGive;g" $file
-      done
+      if [ "$${REPLACE}" != "" ]
+      then
+        grep -ril --include="*.tf" "git::https://github.com/$${ORG}"|grep -v .terraform| while read file
+        do
+          echo "file : $file"
+          sed -i "s;github.com/$${ORG};$GITHUB_TOKEN@github.com/$${ORG};g" $file
+        done
+      fi
       terraform init -backend-config=$${BACKEND_CONFIG_FILE}
       [ "$WORKSPACE" != "" ] && terraform workspace select -or-create $${WORKSPACE}
       terraform plan -out tfplan --var-file=$${TF_VAR_FILE}
 artifacts:
   files:
-    - '**/*'
+     - '**/*'
   name: TerraformPlan

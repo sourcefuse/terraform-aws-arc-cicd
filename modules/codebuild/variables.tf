@@ -72,11 +72,17 @@ variable "terraform_version" {
   default     = "terraform-1.5.0-1.x86_64"
 }
 
+variable "privileged_mode" {
+  type        = bool
+  description = "Whether to enable running the Docker daemon inside a Docker container. Defaults to false"
+  default     = false
+}
+
 variable "role_data" {
   type = object({
     name                                = string
-    pipeline_service                    = string
-    assume_role_arns                    = list(string)
+    pipeline_service                    = optional(string)
+    assume_role_arns                    = optional(list(string))
     codestar_connection                 = optional(string, null)
     github_secret_arn                   = optional(string, null)
     terraform_state_s3_bucket           = optional(string, null)
@@ -84,6 +90,7 @@ variable "role_data" {
     additional_iam_policy_doc_json_list = optional(list(any), [])
   })
   description = "Data required for creating IAM role"
+  default     = null
 }
 
 variable "artifacts_bucket" {
