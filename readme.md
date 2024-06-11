@@ -432,4 +432,4 @@ By specifying this , it will bump the version and if you dont specify this in yo
 ## Authors
 
 This project is authored by:
-- SourceFuse
+- SourceFuse ARC TEAM
