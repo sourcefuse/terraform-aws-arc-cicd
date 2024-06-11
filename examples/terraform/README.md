@@ -1,8 +1,8 @@
-# [terraform-aws-arc-security](https://github.com/sourcefuse/terraform-aws-arc-security)
+# [terraform-aws-arc-cicd](https://github.com/sourcefuse/terraform-aws-arc-cicd)
 
 ## Overview
 
-AWS Security for the SourceFuse DevOps Reference Architecture Infrastructure.
+AWS cicd for the SourceFuse DevOps Reference Architecture Infrastructure.
 
 ## First Time Usage
 ```shell
