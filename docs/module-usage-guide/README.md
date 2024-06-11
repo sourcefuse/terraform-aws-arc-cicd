@@ -47,10 +47,13 @@ Integrate the module with your existing Terraform mono repo configuration, follo
 
 ### Multi account Pipeline
   - Refer [example](https://github.com/sourcefuse/terraform-aws-arc-cicd/tree/main/examples/multi-account-ui-deployment) for creating multi account pipelines.
+  ![multi_account_cicd](./../static/multi-account-cicd.png)
 
 ### Required AWS Permissions
 
-Ensure that the AWS credentials used to execute Terraform have the necessary permissions to set up a cloud cicd infrastructure on AWS.
+- Ensure that the AWS credentials used to execute Terraform have the necessary permissions to set up a cloud cicd infrastructure on AWS.
+- Incase of multi account setup, create the IAM roles in Workload accounts and add trust policy for Codebuild project roles.
+
 
 ## Module Configuration
 
@@ -88,10 +91,6 @@ The module focuses on setting up setting up a CICD pipelines on AWS. Adjust the 
 If you encounter a bug or issue, please report it on the [GitHub repository](https://github.com/sourcefuse/terraform-aws-arc-cicd/issues).
 
 ## cicd Considerations
-
-### AWS VPC
-
-Understand the cicd considerations related to Cloud cicd when using this module.
 
 ### Best Practices for AWS Cloud cicd
 
