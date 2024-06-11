@@ -47,7 +47,11 @@ Integrate the module with your existing Terraform mono repo configuration, follo
 
 ### Multi account Pipeline
   - Refer [example](https://github.com/sourcefuse/terraform-aws-arc-cicd/tree/main/examples/multi-account-ui-deployment) for creating multi account pipelines.
-  ![multi_account_cicd](./static/multi-account-cicd.png)
+
+
+  ![multi_account_cicd](./../../static/multi-account-cicd.png)
+
+
 
 ### Required AWS Permissions
 
