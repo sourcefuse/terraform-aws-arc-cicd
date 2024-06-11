@@ -47,4 +47,4 @@ jobs:
           destination_folder: 'docs/arc-iac-docs/modules/terraform-aws-arc-cicd/docs/module-usage-guide'
           user_email: 'github-actions@github.com'
           user_name: ${{ github.actor }}
-          commit_message: ${{ github.event.head_commit.message }}    
+          commit_message: ${{ github.event.head_commit.message }}
