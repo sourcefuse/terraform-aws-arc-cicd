@@ -5,12 +5,14 @@ variable "name" {
 
 variable "slack_channel_id" {
   type        = string
-  description = "Slack Channel ID"
+  description = "Slack Channel ID. Required when enable_slack_integration is true."
+  default     = null
 }
 
 variable "slack_workspace_id" {
   type        = string
-  description = "Slack Workspace ID"
+  description = "Slack Workspace ID. Must contain only uppercase letters and numbers (e.g., T01234ABCDE). Required when enable_slack_integration is true."
+  default     = null
 }
 
 
@@ -58,4 +60,10 @@ variable "managed_policy_arns" {
   type        = list(string)
   description = "(optional) A list of Amazon Resource Names (ARNs) of the IAM managed policies that you want to attach to the role."
   default     = ["arn:aws:iam::aws:policy/AWSCodePipeline_ReadOnlyAccess", "arn:aws:iam::aws:policy/AWSCodePipelineApproverAccess"]
+}
+
+variable "deletion_window_in_days" {
+  type        = number
+  default     = 10
+  description = "Duration in days after which the key is deleted after destruction of the resource"
 }

@@ -5,12 +5,14 @@ variable "tags" {
 
 variable "artifacts_bucket" {
   type        = string
-  description = "s3 bucket used for codepipeline artifacts"
+  description = "s3 bucket used for codepipeline artifacts. Optional - not required when using NO_SOURCE builds."
+  default     = null
 }
 
 variable "codestar_connection" {
   type        = string
   description = "codestar connection arn for github repository"
+  default     = null
 }
 
 variable "codebuild_projects" {
@@ -27,6 +29,10 @@ variable "codebuild_projects" {
     buildspec_file_name         = optional(string, null)
     buildspec_file              = optional(string, null)
     terraform_version           = optional(string, "terraform-1.5.0-1.x86_64")
+    source_type                 = optional(string, "CODEPIPELINE") # Valid values: CODEPIPELINE, CODECOMMIT, GITHUB, GITHUB_ENTERPRISE, BITBUCKET, S3, NO_SOURCE
+    source_location             = optional(string, null)           # Required when source_type is not CODEPIPELINE or NO_SOURCE
+    artifacts_type              = optional(string, "CODEPIPELINE") # Valid values: CODEPIPELINE, NO_ARTIFACTS, S3
+    artifacts_location          = optional(string, null)           # Required when artifacts_type is S3
     create_role                 = optional(bool, false)
     role_data = optional(object({
       name                                = string
@@ -151,10 +157,10 @@ variable "role_data" {
 variable "chatbot_data" {
   type = object({
     name                     = string
-    slack_channel_id         = string
-    slack_workspace_id       = string
+    slack_channel_id         = optional(string, null) # Required only when enable_slack_integration is true
+    slack_workspace_id       = optional(string, null) # Required only when enable_slack_integration is true. Must contain only uppercase letters and numbers.
     guardrail_policies       = optional(list(string), ["arn:aws:iam::aws:policy/AWSAccountManagementReadOnlyAccess"])
-    enable_slack_integration = bool
+    enable_slack_integration = optional(bool, false)
     role_polices = optional(list(object({
       policy_document = any
       policy_name     = string
@@ -162,6 +168,6 @@ variable "chatbot_data" {
     })), [])
     managed_policy_arns = optional(list(string), ["arn:aws:iam::aws:policy/AWSResourceExplorerReadOnlyAccess"])
   })
-  description = "(optional) Chatbot details to create integration"
+  description = "(optional) Chatbot details to create integration. Set chatbot_data to null to disable chatbot completely."
   default     = null
 }

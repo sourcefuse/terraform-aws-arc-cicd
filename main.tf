@@ -5,7 +5,7 @@ module "role" {
   name                                = each.key
   pipeline_service                    = each.value.pipeline_service
   assume_role_arns                    = each.value.assume_role_arns
-  artifact_bucket_arn                 = data.aws_s3_bucket.artifact.arn
+  artifact_bucket_arn                 = length(data.aws_s3_bucket.artifact) > 0 ? data.aws_s3_bucket.artifact[0].arn : ""
   codestar_connection                 = var.codestar_connection
   github_secret_arn                   = each.value.github_secret_arn
   terraform_state_s3_bucket           = each.value.terraform_state_s3_bucket
@@ -36,6 +36,10 @@ module "codebuild" {
   buildspec_file_name         = each.value.buildspec_file_name
   buildspec_file              = each.value.buildspec_file
   terraform_version           = each.value.terraform_version
+  source_type                 = each.value.source_type
+  source_location             = each.value.source_location
+  artifacts_type              = each.value.artifacts_type
+  artifacts_location          = each.value.artifacts_location
   create_role                 = each.value.create_role
   role_data = merge(
     each.value.role_data,

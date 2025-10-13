@@ -1,7 +1,7 @@
 locals {
 
   environment_role = {
-    dev = "arn:aws:iam::xxxx:role/example-dev-cicd-role"
+    dev = "arn:aws:iam::884360309640:role/debash-iam-role"
   }
 
   branch_map = {
@@ -24,8 +24,8 @@ locals {
 
   chatbot_data = {
     name                     = "${var.namespace}-slack"
-    slack_channel_id         = "C0xxxxxxx5"
-    slack_workspace_id       = "T0xxxxxxRT"
+    slack_channel_id         = "C09L9CJ4EAG"
+    slack_workspace_id       = "T04C3L3M2"
     managed_policy_arns      = ["arn:aws:iam::aws:policy/AWSCodePipeline_FullAccess"]
     guardrail_policies       = ["arn:aws:iam::aws:policy/AWSCodePipeline_FullAccess"]
     role_polices             = local.policies
