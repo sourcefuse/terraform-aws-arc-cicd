@@ -127,3 +127,23 @@ variable "tags" {
   type        = map(string)
   description = "Tags for AWS resources"
 }
+
+variable "vpc_config" {
+  type = object({
+    vpc_id             = string
+    subnets            = list(string)
+    security_group_ids = list(string)
+  })
+  description = "VPC configuration for CodeBuild project. Required to run builds in a VPC."
+  default     = null
+}
+
+variable "environment_variables" {
+  type = list(object({
+    name  = string
+    value = string
+    type  = optional(string, "PLAINTEXT")
+  }))
+  description = "Environment variables for CodeBuild project"
+  default     = []
+}

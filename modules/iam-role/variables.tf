@@ -55,3 +55,9 @@ variable "tags" {
   description = "Tags for IAM role"
   default     = {}
 }
+
+variable "enable_vpc" {
+  type        = bool
+  description = "Enable VPC configuration for CodeBuild. When true, adds EC2 network interface permissions."
+  default     = false
+}

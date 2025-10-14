@@ -11,6 +11,7 @@ module "role" {
   terraform_state_s3_bucket           = each.value.terraform_state_s3_bucket
   dynamodb_lock_table                 = each.value.dynamodb_lock_table
   additional_iam_policy_doc_json_list = each.value.additional_iam_policy_doc_json_list
+  enable_vpc                          = each.value.enable_vpc
 
   tags = var.tags
 }
@@ -48,6 +49,8 @@ module "codebuild" {
     }
 
   )
+  vpc_config            = each.value.vpc_config
+  environment_variables = each.value.environment_variables
 
   tags = var.tags
 

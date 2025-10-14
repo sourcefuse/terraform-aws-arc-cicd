@@ -76,6 +76,24 @@ data "aws_iam_policy_document" "codebuild" {
     }
   }
 
+  dynamic "statement" {
+    for_each = var.enable_vpc ? [1] : []
+    content {
+      effect = "Allow"
+      actions = [
+        "ec2:CreateNetworkInterface",
+        "ec2:DescribeNetworkInterfaces",
+        "ec2:DeleteNetworkInterface",
+        "ec2:DescribeSubnets",
+        "ec2:DescribeSecurityGroups",
+        "ec2:DescribeDhcpOptions",
+        "ec2:DescribeVpcs",
+        "ec2:CreateNetworkInterfacePermission"
+      ]
+      resources = ["*"]
+    }
+  }
+
 }
 
 resource "aws_iam_role" "this" {

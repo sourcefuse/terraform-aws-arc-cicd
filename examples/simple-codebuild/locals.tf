@@ -10,6 +10,7 @@ locals {
       terraform_state_s3_bucket           = null
       dynamodb_lock_table                 = null
       additional_iam_policy_doc_json_list = []
+      enable_vpc                          = true # Enable VPC permissions for CodeBuild
     }
   }
 
@@ -30,6 +31,7 @@ locals {
             commands:
               - echo "Pre-build phase started"
               - echo "Environment: $MESSAGE"
+              - echo "Custom Variable: $CUSTOM_VAR"
           build:
             commands:
               - echo "Build phase started"
@@ -53,6 +55,27 @@ locals {
       artifacts_location = null
       artifacts_bucket   = null # Not needed for NO_SOURCE
       privileged_mode    = false
+
+      # VPC Configuration (optional - using default VPC)
+      vpc_config = {
+        vpc_id             = data.aws_vpc.default.id
+        subnets            = data.aws_subnets.default.ids
+        security_group_ids = [data.aws_security_group.default.id]
+      }
+
+      # Environment Variables
+      environment_variables = [
+        {
+          name  = "CUSTOM_VAR"
+          value = "custom-value"
+          type  = "PLAINTEXT"
+        },
+        {
+          name  = "ENVIRONMENT"
+          value = var.environment
+          type  = "PLAINTEXT"
+        }
+      ]
     }
   }
 }

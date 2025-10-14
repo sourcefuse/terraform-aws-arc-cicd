@@ -43,6 +43,16 @@ variable "codebuild_projects" {
       dynamodb_lock_table                 = optional(string, null)
       additional_iam_policy_doc_json_list = optional(list(any), [])
     }), null)
+    vpc_config = optional(object({
+      vpc_id             = string
+      subnets            = list(string)
+      security_group_ids = list(string)
+    }), null)
+    environment_variables = optional(list(object({
+      name  = string
+      value = string
+      type  = optional(string, "PLAINTEXT")
+    })), [])
   }))
   description = "Values to create Codebuild project"
   default     = null // null  doesn't create codebuild project
@@ -148,6 +158,7 @@ variable "role_data" {
     terraform_state_s3_bucket           = optional(string, null)
     dynamodb_lock_table                 = optional(string, null)
     additional_iam_policy_doc_json_list = optional(list(any), [])
+    enable_vpc                          = optional(bool, false)
   }))
   description = "Roles to be created"
   default     = {}
