@@ -1,4 +1,4 @@
-![Module Banner](./static/multi-account-cicd.png)
+
 
 # [terraform-aws-arc-cicd](https://github.com/sourcefuse/terraform-aws-arc-cicd)
 
@@ -21,6 +21,8 @@
 
 
 ## Overview
+
+![Module Banner](./static/multi-account-cicd.png)
 
 ## Introduction
 
