@@ -8,8 +8,6 @@
 
 > **Category:** DevOps / CI/CD
 
-
-
 > **Source:** [https://github.com/sourcefuse/terraform-aws-arc-cicd](https://github.com/sourcefuse/terraform-aws-arc-cicd)
 
 [![Latest Release](https://img.shields.io/github/release/sourcefuse/terraform-aws-arc-cicd.svg?style=for-the-badge)](https://github.com/sourcefuse/terraform-aws-arc-cicd/releases/latest)
@@ -22,18 +20,9 @@
 
 ## Overview
 
+Creates AWS CodePipeline and CodeBuild projects for application and Terraform deployments, with optional Slack notifications via AWS Chatbot.
+
 ![Module Banner](./static/multi-account-cicd.png)
-
-## Introduction
-
-SourceFuse's AWS Reference Architecture (ARC) Terraform module automates the creation of AWS CodePipeline and CodeBuild projects, facilitating the build and deployment of both application code and Terraform modules. By defining reusable CodeBuild projects, it ensures consistent and efficient build processes that can be shared across multiple CodePipelines. This approach promotes standardization and reduces redundancy in the CI/CD pipeline configuration.
-
-### Prerequisites
-Before using this module, ensure you have the following:
-
-- AWS credentials configured.
-- Terraform installed.
-- A working knowledge of Terraform.
 
 
 ## What It Does
@@ -47,26 +36,7 @@ Before using this module, ensure you have the following:
 For more information about this repository and its usage, please see [Terraform AWS CICD Usage Guide](https://github.com/sourcefuse/terraform-aws-arc-cicd/blob/main/docs/module-usage-guide/README.md)
 
 ## Quickstart
-1. **Define the Module**
 
-Initially, it's essential to define a Terraform module, which is organized as a distinct directory encompassing Terraform configuration files. Within this module directory, input variables and output values must be defined in the variables.tf and outputs.tf files, respectively. The following illustrates an example directory structure:
-
-
-
-```plaintext
-billing/
-|-- main.tf
-|-- variables.tf
-|-- outputs.tf
-```
-
-
-2. **Define Input Variables**
-
-Inside the `variables.tf` or in `*.tfvars` file, you should define values for the variables that the module requires.
-
-3. **Use the Module in Your Main Configuration**
-In your main Terraform configuration file (e.g., main.tf), you can use the module. Specify the source of the module, and version, For Example
 ```hcl
 module "pipelines" {
   source = "sourcefuse/arc-cicd/aws"
@@ -83,36 +53,7 @@ module "pipelines" {
 }
 ```
 
-## Required Inputs
-
-| Name | Type | Description |
-|------|------|-------------|
-| `artifacts_bucket` | `string` | S3 bucket for pipeline artifacts |
-| `codestar_connection` | `string` | CodeStar connection name for GitHub |
-| `tags` | `map(string)` | Resource tags |
-## Key Outputs
-
-| Name | Description |
-|------|-------------|
-| `chatbot_sns_arns` | SNS topic ARNs integrated with AWS Chatbot |
-## Full Variable & Output Reference
-
-The complete inputs/outputs reference is auto-generated below.
-
-4. **Output Values**
-
-Inside the `outputs.tf` file of the module, you can define output values that can be referenced in the main configuration. For example:
-
-```hcl
-output "chatbot_sns_arns" {
-  description = "SNS topics created by AWS Chatbot"
-  value       = module.example.chatbot_sns_arns
-}
-
-
-```
-
-5. **.tfvars**
+## .tfvars
 
 Inside the `.tfvars` file of the module, you can provide desired values that can be referenced in the main configuration. For example:
 
@@ -377,6 +318,21 @@ Destroy Terraform
 ```shell
 terraform destroy -var-file dev.tfvars
 ```
+## Required Inputs
+
+| Name | Type | Description |
+|------|------|-------------|
+| `artifacts_bucket` | `string` | S3 bucket for pipeline artifacts |
+| `codestar_connection` | `string` | CodeStar connection name for GitHub |
+| `tags` | `map(string)` | Resource tags |
+## Key Outputs
+
+| Name | Description |
+|------|-------------|
+| `chatbot_sns_arns` | SNS topic ARNs integrated with AWS Chatbot |
+## Full Variable & Output Reference
+
+The complete inputs/outputs reference is auto-generated below.
 
 <!-- BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
 ## Requirements
