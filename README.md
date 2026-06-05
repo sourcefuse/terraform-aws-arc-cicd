@@ -471,7 +471,6 @@ By specifying this , it will bump the version and if you dont specify this in yo
 
 
 ## Contributing
-
 See [CONTRIBUTING.md](./CONTRIBUTING.md) for commit conventions and development setup.
 
 ## Authors
