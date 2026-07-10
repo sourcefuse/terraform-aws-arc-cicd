@@ -1,22 +1,28 @@
 data "aws_iam_policy_document" "codepipeline" {
-  statement {
-    effect = "Allow"
+  dynamic "statement" {
+    for_each = var.artifact_bucket_arn != null && var.artifact_bucket_arn != "" ? [1] : []
+    content {
+      effect = "Allow"
 
-    actions = [
-      "s3:GetObject",
-      "s3:GetObjectVersion",
-      "s3:GetBucketVersioning",
-      "s3:PutObjectAcl",
-      "s3:PutObject",
-    ]
+      actions = [
+        "s3:GetObject",
+        "s3:GetObjectVersion",
+        "s3:GetBucketVersioning",
+        "s3:PutObjectAcl",
+        "s3:PutObject",
+      ]
 
-    resources = [var.artifact_bucket_arn, "${var.artifact_bucket_arn}/*"]
+      resources = [var.artifact_bucket_arn, "${var.artifact_bucket_arn}/*"]
+    }
   }
 
-  statement {
-    effect    = "Allow"
-    actions   = ["codestar-connections:UseConnection"]
-    resources = [data.aws_codestarconnections_connection.this.arn]
+  dynamic "statement" {
+    for_each = var.codestar_connection != null && var.codestar_connection != "" ? [1] : []
+    content {
+      effect    = "Allow"
+      actions   = ["codestar-connections:UseConnection"]
+      resources = [data.aws_codestarconnections_connection.this[0].arn]
+    }
   }
 
   statement {
@@ -44,16 +50,20 @@ data "aws_iam_policy_document" "codebuild" {
     resources = ["*"]
 
   }
-  statement {
-    effect = "Allow"
-    actions = [
-      "s3:PutObject",
-      "s3:GetObject",
-      "s3:GetObjectVersion",
-      "s3:GetBucketAcl",
-      "s3:GetBucketLocation"
-    ]
-    resources = [var.artifact_bucket_arn, "${var.artifact_bucket_arn}/*"]
+
+  dynamic "statement" {
+    for_each = var.artifact_bucket_arn != null && var.artifact_bucket_arn != "" ? [1] : []
+    content {
+      effect = "Allow"
+      actions = [
+        "s3:PutObject",
+        "s3:GetObject",
+        "s3:GetObjectVersion",
+        "s3:GetBucketAcl",
+        "s3:GetBucketLocation"
+      ]
+      resources = [var.artifact_bucket_arn, "${var.artifact_bucket_arn}/*"]
+    }
   }
 
   dynamic "statement" {
@@ -63,6 +73,24 @@ data "aws_iam_policy_document" "codebuild" {
       effect    = "Allow"
       actions   = ["sts:AssumeRole"]
       resources = var.assume_role_arns
+    }
+  }
+
+  dynamic "statement" {
+    for_each = var.enable_vpc ? [1] : []
+    content {
+      effect = "Allow"
+      actions = [
+        "ec2:CreateNetworkInterface",
+        "ec2:DescribeNetworkInterfaces",
+        "ec2:DeleteNetworkInterface",
+        "ec2:DescribeSubnets",
+        "ec2:DescribeSecurityGroups",
+        "ec2:DescribeDhcpOptions",
+        "ec2:DescribeVpcs",
+        "ec2:CreateNetworkInterfacePermission"
+      ]
+      resources = ["*"]
     }
   }
 

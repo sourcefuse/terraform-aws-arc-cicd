@@ -96,9 +96,54 @@ variable "role_data" {
 variable "artifacts_bucket" {
   type        = string
   description = "s3 bucket used for codepipeline artifacts"
+  default     = null
+}
+
+variable "source_type" {
+  type        = string
+  description = "Type of repository that contains the source code to be built. Valid values: CODEPIPELINE, CODECOMMIT, GITHUB, GITHUB_ENTERPRISE, BITBUCKET, S3, NO_SOURCE"
+  default     = "CODEPIPELINE"
+}
+
+variable "source_location" {
+  type        = string
+  description = "Location of the source code from git or S3. Required when source_type is not CODEPIPELINE or NO_SOURCE"
+  default     = null
+}
+
+variable "artifacts_type" {
+  type        = string
+  description = "Build output artifact's type. Valid values: CODEPIPELINE, NO_ARTIFACTS, S3"
+  default     = "CODEPIPELINE"
+}
+
+variable "artifacts_location" {
+  type        = string
+  description = "Location of artifacts. Required when artifacts_type is S3"
+  default     = null
 }
 
 variable "tags" {
   type        = map(string)
   description = "Tags for AWS resources"
+}
+
+variable "vpc_config" {
+  type = object({
+    vpc_id             = string
+    subnets            = list(string)
+    security_group_ids = list(string)
+  })
+  description = "VPC configuration for CodeBuild project. Required to run builds in a VPC."
+  default     = null
+}
+
+variable "environment_variables" {
+  type = list(object({
+    name  = string
+    value = string
+    type  = optional(string, "PLAINTEXT")
+  }))
+  description = "Environment variables for CodeBuild project"
+  default     = []
 }

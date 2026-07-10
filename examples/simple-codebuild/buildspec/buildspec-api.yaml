@@ -1,0 +1,33 @@
+---
+version: 0.2
+
+# Simple buildspec for demonstration purposes
+# This example shows a basic build without any source code (NO_SOURCE)
+
+env:
+  variables:
+    MESSAGE: "Hello from Simple CodeBuild Example"
+
+phases:
+  pre_build:
+    commands:
+      - echo "Pre-build phase started at $(date)"
+      - echo "$MESSAGE"
+      - echo "CodeBuild Build ID: $CODEBUILD_BUILD_ID"
+
+  build:
+    commands:
+      - echo "Build phase started"
+      - echo "Running example build commands..."
+      - ls -la
+      - pwd
+      - echo "You can add your custom build logic here"
+
+  post_build:
+    commands:
+      - echo "Post-build phase completed at $(date)"
+      - echo "Build finished successfully!"
+
+artifacts:
+  files:
+    - '**/*'

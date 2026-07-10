@@ -16,7 +16,8 @@ variable "assume_role_arns" {
 
 variable "artifact_bucket_arn" {
   type        = string
-  description = "s3 buckets access for code pipeline and codebuild"
+  description = "s3 buckets access for code pipeline and codebuild. Optional - not required for NO_SOURCE builds."
+  default     = ""
 }
 
 variable "codestar_connection" {
@@ -53,4 +54,10 @@ variable "tags" {
   type        = map(string)
   description = "Tags for IAM role"
   default     = {}
+}
+
+variable "enable_vpc" {
+  type        = bool
+  description = "Enable VPC configuration for CodeBuild. When true, adds EC2 network interface permissions."
+  default     = false
 }

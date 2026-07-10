@@ -7,7 +7,7 @@ resource "awscc_chatbot_slack_channel_configuration" "this" {
   slack_channel_id   = var.slack_channel_id
   slack_workspace_id = var.slack_workspace_id
   guardrail_policies = var.guardrail_policies
-  sns_topic_arns     = [module.sns_topic.sns_topic_arn]
+  sns_topic_arns     = [module.sns_topic.topic_arn]
 
 }
 
@@ -81,24 +81,21 @@ data "aws_iam_policy_document" "sns_kms_key_policy" {
 }
 
 module "kms" {
-  source  = "cloudposse/kms-key/aws"
-  version = "0.12.2"
-
-  name                = "${local.prefix}-pipeline-sns"
-  description         = "KMS key for SNS topic"
-  enable_key_rotation = true
-  alias               = "alias/${local.prefix}/pipeline-sns"
-  policy              = data.aws_iam_policy_document.sns_kms_key_policy.json
-  tags                = var.tags
+  source                  = "sourcefuse/arc-kms/aws"
+  version                 = "1.0.11"
+  deletion_window_in_days = var.deletion_window_in_days
+  enable_key_rotation     = true
+  alias                   = "alias/${local.prefix}/pipeline-sns"
+  tags                    = var.tags
+  policy                  = data.aws_iam_policy_document.sns_kms_key_policy.json
 
 }
 
 module "sns_topic" {
-  source  = "cloudposse/sns-topic/aws"
-  version = "0.21.0"
+  source  = "sourcefuse/arc-sns/aws"
+  version = "0.0.2"
 
-  attributes                             = ["${local.prefix}-aws-chatbot"]
-  kms_master_key_id                      = module.kms.alias_name
-  allowed_aws_services_for_sns_published = ["chatbot.amazonaws.com"]
-  tags                                   = var.tags
+  name              = "${local.prefix}-chatbot-topic"
+  kms_master_key_id = module.kms.alias_name
+  tags              = var.tags
 }

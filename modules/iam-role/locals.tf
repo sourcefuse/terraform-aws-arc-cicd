@@ -1,5 +1,6 @@
 data "aws_codestarconnections_connection" "this" {
-  name = var.codestar_connection
+  count = var.codestar_connection != null && var.codestar_connection != "" ? 1 : 0
+  name  = var.codestar_connection
 }
 
 

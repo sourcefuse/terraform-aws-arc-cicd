@@ -10,6 +10,8 @@ terraform {
       version = "> 5.0, < 7.0"
     }
   }
+
+  // backend "s3" {}
 }
 
 provider "aws" {
@@ -22,25 +24,19 @@ module "tags" {
 
   environment = var.environment
   project     = var.project
-
-  extra_tags = {
-    Repo         = "github.com/sourcefuse/terraform-aws-arc-security"
-    MonoRepo     = "True"
-    MonoRepoPath = "terraform/security"
-  }
 }
 
 
-module "pipelines" {
+module "simple_codebuild" {
   source = "../../"
 
-  artifacts_bucket    = local.artifacts_bucket
-  codestar_connection = local.codestar_connection
+  artifacts_bucket    = null # Not required for NO_SOURCE builds
+  codestar_connection = null # Not using CodeStar connection
 
   role_data          = local.role_data
   codebuild_projects = local.codebuild_projects
-  codepipelines      = local.codepipeline_data
-  chatbot_data       = local.chatbot_data
+  codepipelines      = {}   # Not creating any pipelines
+  chatbot_data       = null # Not using Slack integration
 
   tags = module.tags.tags
 }
